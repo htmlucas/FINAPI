@@ -53,7 +53,7 @@ app.post("/account", (request, response) => {
     return response.status(201).send();
 });
 
-//app.use(verifyIfExistsAccountCPF);  é para quando todas as rotas precisam usar um middleware ai ja vale pra todas
+//app.use(verifyIfExistsAccountCPF);  é para quando todas as rotas precisam usar um middleware q vale pra todas
 
 app.get("/statement", verifyIfExistsAccountCPF, (request, response) => {    
     const { customer } = request;
@@ -75,6 +75,48 @@ app.post("/deposit", verifyIfExistsAccountCPF,(request, response) => {
     customer.statement.push(statementOperation);
 
     return response.status(201).send();
+});
+
+app.get("/statement/date", verifyIfExistsAccountCPF, (request, response) => {
+    const { customer } = request;
+
+    const { date } = request.query;
+
+    const dateFormat = new Date(date + " 00:00");
+
+    const statement = customer.statement.filter(
+        (statement) => 
+        statement.created_at.toDateString() === 
+        new Date(dateFormat).toDateString()
+    );
+
+    return response.json(statement);
+});
+
+app.put("/account",verifyIfExistsAccountCPF, (request, response) =>{
+    const { name } = request.body;
+
+    const { customer } = request;
+
+    customer.name = name;
+
+    return response.status(201).send();
+});
+
+app.get("/account",verifyIfExistsAccountCPF, (request, response) => {
+    const { customer } = request;
+
+    return response.json(customer);
+});
+
+app.delete("/account", verifyIfExistsAccountCPF, (request, response) => {
+
+    const { customer } = request;
+
+    //splice    
+    customers.splice(customer, 1);
+
+    return response.status(200).json(customers);
 });
 
 app.listen(3333);
